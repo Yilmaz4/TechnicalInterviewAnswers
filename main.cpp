@@ -137,21 +137,19 @@ namespace arrays {
 		}
 	}
 
-	namespace { // anonymous namespace for recursive functions
-		template <typename type> void permute(std::vector<type> v, uint64_t sIdx = static_cast<uint64_t>(-1), uint64_t eIdx = static_cast<uint64_t>(-1)) {
-			if (sIdx == eIdx) {
-				print_vector(v);
-				return;
-			}
-			if (sIdx == static_cast<uint64_t>(-1))
-				sIdx = 0;
-			if (eIdx == static_cast<uint64_t>(-1))
-				eIdx = v.size() - 1;
-			for (int i = 0; i <= eIdx; i++) {
-				std::swap(v[sIdx], v[i]);
-				permute(v, sIdx + 1, eIdx);
-				std::swap(v[sIdx], v[i]);
-			}
+	template <typename type> void permute(std::vector<type> v, uint64_t sIdx = static_cast<uint64_t>(-1), uint64_t eIdx = static_cast<uint64_t>(-1)) {
+		if (sIdx == eIdx) {
+			print_vector(v);
+			return;
+		}
+		if (sIdx == static_cast<uint64_t>(-1))
+			sIdx = 0;
+		if (eIdx == static_cast<uint64_t>(-1))
+			eIdx = v.size() - 1;
+		for (int i = 0; i <= eIdx; i++) {
+			std::swap(v[sIdx], v[i]);
+			permute(v, sIdx + 1, eIdx);
+			std::swap(v[sIdx], v[i]);
 		}
 	}
 
