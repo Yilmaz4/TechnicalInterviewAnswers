@@ -2,6 +2,8 @@
 #include <string>
 #include <vector>
 
+#include <algorithm> // temporary
+
 template <typename type> requires std::integral<type> || requires(type x) {
 	{ std::cout << x } noexcept -> std::same_as<std::ostream>;
 } void print_matrix(type* matrix, const int h, const int w, bool endl = false) {
@@ -80,6 +82,13 @@ template <typename type> requires std::constructible_from<std::string> || requir
 	}
 }
 
+uint64_t factorial(const uint64_t num) {
+	uint64_t out = num;
+	for (int n = num - 1; n > 0; n--)
+		out *= n;
+	return out;
+}
+
 namespace arrays {
 	void set_matrix_zeroes() {
 		static constexpr int h = 3;
@@ -148,21 +157,28 @@ namespace arrays {
 			eIdx = v.size() - 1;
 		for (int i = 0; i <= eIdx; i++) {
 			std::swap(v[sIdx], v[i]);
-			permute(v, sIdx + 1, eIdx);
+			permute<type>(v, sIdx + 1, eIdx);
 			std::swap(v[sIdx], v[i]);
 		}
 	}
 
-	void find_next_permutation() {
+	void find_next_lexicographical_permutation() {
 		std::vector<int> in = take_vector_input<int>("V: ");
-		std::vector<std::vector<int>> out;
+		std::vector<int> be = in;
 		
-		permute(in);
-		print_vector(in);
+		std::stable_sort(in.begin(), in.end());
+		print_vector(in, true);
+		int i;
+		for (i = 1; in != be; i++) {
+			std::next_permutation(in.begin(), in.end());
+			print_vector(in, true);
+		}
+		std::cout << "Total of " << i << " permutations\n";
 	}
 }
 
 
 int main(int argc, char* argv[]) {
-	arrays::find_next_permutation();
+	while (true)
+	arrays::find_next_lexicographical_permutation();
 }
