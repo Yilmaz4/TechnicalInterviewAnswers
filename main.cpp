@@ -2,11 +2,17 @@
 #include <string>
 #include <vector>
 
-#include <algorithm> // temporary
+template <typename type> concept supports_comparison = requires(type x, type y) {
+	{ x < y } noexcept -> std::same_as<bool>;
+	{ x > y } noexcept -> std::same_as<bool>;
+};
+template <typename type> concept supported_by_ostream = requires(type x) {
+	{ std::cout << x } noexcept -> std::convertible_to<std::ostream>;
+};
 
 template <typename type> requires std::integral<type> || requires(type x) {
 	{ std::cout << x } noexcept -> std::same_as<std::ostream>;
-} void print_matrix(type* matrix, const int h, const int w, bool endl = false) {
+} void print_array_matrix(type* matrix, const int h, const int w, bool endl = false) {
 	for (int x = 0; x < w; x++) {
 		std::cout << ((!x) ? "[[" : " [");
 		for (int y = 0; y < h; y++) {
@@ -23,6 +29,18 @@ template <typename type> requires std::integral<type> || requires(type x) {
 	std::cout << '{';
 	for (int i = 0; i < v.size(); i++) {
 		std::cout << v.operator[](i) << ((i != v.size() - 1) ? ", " : "");
+	}
+	std::cout << '}';
+	if (endl) std::cout << std::endl;
+}
+
+template <typename type> requires std::integral<type> || requires(type x) {
+	{ std::cout << x } noexcept -> std::same_as<std::ostream>;
+} void print_vectorial_matrix(std::vector<std::vector<type>> matrix, bool endl = false) {
+	std::cout << '{';
+	for (auto const& v : matrix) {
+		print_vector<type>(v);
+		std::cout << ',' << std::endl;
 	}
 	std::cout << '}';
 	if (endl) std::cout << std::endl;
@@ -61,8 +79,14 @@ template <typename type> requires std::constructible_from<std::string> || requir
 			case ',':
 				out.push_back(n);
 				j = n = nF = 0;
-				if (c == '{')
+				if (c == '{') {
+					for (int i = 0; i < out.size() / 2; i++) {
+						auto t = out[i];
+						out[i] = out[out.size() - i - 1];
+						out[out.size() - i - 1] = t;
+					}
 					return out;
+				}
 				__fallthrough;
 			case '}':
 			case ' ':
@@ -74,17 +98,14 @@ template <typename type> requires std::constructible_from<std::string> || requir
 				n += (int)(pow(10, j++)) * (c - '\60');
 			}
 		}
-		for (int i = 0; i < out.size() / 2; i++) {
-			auto t = out[i];
-			out[i] = out[out.size() - i - 1];
-			out[out.size() - i - 1] = t;
-		}
 	}
 }
 
 uint64_t factorial(const uint64_t num) {
+	if (!num)
+		return num + 1;
 	uint64_t out = num;
-	for (int n = num - 1; n > 0; n--)
+	for (uint64_t n = num - 1; n > 0; n--)
 		out *= n;
 	return out;
 }
@@ -117,7 +138,7 @@ namespace arrays {
 				}
 			}
 		}
-		print_matrix<int>(&matrix[0][0], h, w);
+		print_array_matrix<int>(&matrix[0][0], h, w);
 	}
 
 	void generate_pascals_triangle() {
@@ -146,39 +167,44 @@ namespace arrays {
 		}
 	}
 
-	template <typename type> void permute(std::vector<type> v, uint64_t sIdx = static_cast<uint64_t>(-1), uint64_t eIdx = static_cast<uint64_t>(-1)) {
-		if (sIdx == eIdx) {
-			print_vector(v);
-			return;
+	template <typename type> requires supports_comparison<type>
+	std::vector<std::vector<type>> find_next_lexicographic_permutation(std::vector<type>& in) {
+		// TO-CONTINUE (i've got the algorithm right)
+		std::vector<std::vector<type>> perms(factorial(in.size()), std::vector<type>(in.size()));
+		for (int i = 0; i < in.size(); i++) {
+			uint64_t n = factorial((uint64_t)(in.size() - i - 1));
+			for (int j = 0; j < in.size(); j++) {
+				std::vector<type> elms = in;
+				for (uint64_t idx = 0; idx < (!i ? 0 : elms.size()); idx++) {
+					for (int k = 0; k < i; k++) {
+						if (elms[idx] == perms[j][k]) {
+							elms.erase(elms.begin() + idx);
+						}
+					}
+				}
+				uint64_t idx = 0;
+				for (int k = 0; k < n; k++) {
+					perms[(j + 1) * k][i] = elms[idx];
+					if (k % (uint64_t)(n / (in.size() - i - 1)) == 0) {
+						idx++;
+					}
+				}
+			}
 		}
-		if (sIdx == static_cast<uint64_t>(-1))
-			sIdx = 0;
-		if (eIdx == static_cast<uint64_t>(-1))
-			eIdx = v.size() - 1;
-		for (int i = 0; i <= eIdx; i++) {
-			std::swap(v[sIdx], v[i]);
-			permute<type>(v, sIdx + 1, eIdx);
-			std::swap(v[sIdx], v[i]);
-		}
+		return perms;
 	}
 
-	void find_next_lexicographical_permutation() {
-		std::vector<int> in = take_vector_input<int>("V: ");
-		std::vector<int> be = in;
-		
-		std::stable_sort(in.begin(), in.end());
-		print_vector(in, true);
-		int i;
-		for (i = 1; in != be; i++) {
-			std::next_permutation(in.begin(), in.end());
-			print_vector(in, true);
+	int64_t find_max_subarray_sum(std::vector<int>& v) {
+		int max = INT_MIN;
+		for (int i = 0; i < v.size(); i++) {
+			max = (v.at(i) > max ? v[i] : max);
 		}
-		std::cout << "Total of " << i << " permutations\n";
+		// omg this is way harder than i expected!
 	}
 }
 
 
 int main(int argc, char* argv[]) {
-	while (true)
-	arrays::find_next_lexicographical_permutation();
+	auto v = take_vector_input<int>("V: ");
+	print_vectorial_matrix(arrays::find_next_lexicographic_permutation(v));
 }
