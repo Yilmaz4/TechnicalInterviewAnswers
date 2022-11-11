@@ -150,8 +150,8 @@ namespace arrays {
 		int n;
 		std::cin >> n;
 
-		int* prow = new int[n] { 0 };
-		int* crow = new int[n] { 0 };
+		int* pr = new int[n] { 0 };
+		int* cr = new int[n] { 0 };
 
 		auto max = [](int n) {
 			for (int r = 1, v = 1; r <= n / 2; r++) {
@@ -164,17 +164,17 @@ namespace arrays {
 		for (int i = 1; i <= n; i++) {
 			std::cout << std::string(max * (n - i) + (max - i + n), ' ');
 			for (int j = 0; j < i; j++) {
-				auto v = (!j || j == i - 1 ? 1 : (prow[j - 1] + prow[j]));
+				auto v = (!j || j == i - 1 ? 1 : (pr[j - 1] + pr[j]));
 				std::cout << std::string(max - floor(log10(v) + 1), '0') + std::to_string(v) << std::string(max + 2, ' ');
-				crow[j] = v;
+				cr[j] = v;
 			}
 			for (int j = 0; j < i; j++) {
-				prow[j] = crow[j];
+				pr[j] = cr[j];
 			}
 			std::cout << std::endl;
 		}
-		delete[] prow;
-		delete[] crow;
+		delete[] pr;
+		delete[] cr;
 	}
 
 	template <typename type> requires supports_comparison<type>
