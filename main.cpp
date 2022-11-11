@@ -10,22 +10,28 @@ template <typename type> concept supported_by_ostream = requires(type x) {
 	{ std::cout << x } noexcept -> std::convertible_to<std::ostream>;
 };
 
-template <typename type> requires std::integral<type> || requires(type x) {
-	{ std::cout << x } noexcept -> std::same_as<std::ostream>;
-} void print_array_matrix(type* matrix, const int h, const int w, bool endl = false) {
-	for (int x = 0; x < w; x++) {
-		std::cout << ((!x) ? "[[" : " [");
-		for (int y = 0; y < h; y++) {
-			std::cout << *(matrix + y + h * x) << ((y != h - 1) ? ", " : "]");
-		}
-		std::cout << ((x != w - 1) ? ",\n" : "]");
+template <typename type> requires std::integral<type> || supported_by_ostream<type>
+void print_array(type* arr, uint64_t n, bool endl = false) {
+	for (int i = 0; i < n; i++) {
+		std::cout << (!i ? "[" : "") << *(arr + i) << (i != n - 1 ? ", " : "]");
 	}
 	if (endl) std::cout << std::endl;
 }
 
-template <typename type> requires std::integral<type> || requires(type x) {
-	{ std::cout << x } noexcept -> std::same_as<std::ostream>;
-} void print_vector(std::vector<type> v, bool endl = false) noexcept {
+template <typename type> requires std::integral<type> || supported_by_ostream<type>
+void print_array_matrix(type* matrix, const int h, const int w, bool endl = false) {
+	for (int x = 0; x < w; x++) {
+		std::cout << (!x ? "[[" : " [");
+		for (int y = 0; y < h; y++) {
+			std::cout << *(matrix + y + h * x) << ((y != h - 1) ? ", " : "]");
+		}
+		std::cout << (x != w - 1 ? ",\n" : "]");
+	}
+	if (endl) std::cout << std::endl;
+}
+
+template <typename type> requires std::integral<type> || supported_by_ostream<type>
+void print_vector(std::vector<type> v, bool endl = false) noexcept {
 	std::cout << '{';
 	for (int i = 0; i < v.size(); i++) {
 		std::cout << v.operator[](i) << ((i != v.size() - 1) ? ", " : "");
@@ -34,9 +40,8 @@ template <typename type> requires std::integral<type> || requires(type x) {
 	if (endl) std::cout << std::endl;
 }
 
-template <typename type> requires std::integral<type> || requires(type x) {
-	{ std::cout << x } noexcept -> std::same_as<std::ostream>;
-} void print_vectorial_matrix(std::vector<std::vector<type>> matrix, bool endl = false) {
+template <typename type> requires std::integral<type> || supported_by_ostream<type>
+void print_vectorial_matrix(std::vector<std::vector<type>> matrix, bool endl = false) {
 	std::cout << '{';
 	for (auto const& v : matrix) {
 		print_vector<type>(v);
@@ -46,9 +51,8 @@ template <typename type> requires std::integral<type> || requires(type x) {
 	if (endl) std::cout << std::endl;
 }
 
-template <typename type> requires std::constructible_from<std::string> || requires(type x) {
-	{ std::cout << x } noexcept -> std::same_as<std::ostream>;
-} std::vector<type> take_vector_input(std::string q = '>') noexcept {
+template <typename type> requires std::constructible_from<std::string> || supported_by_ostream<type>
+std::vector<type> take_vector_input(std::string q = '>') noexcept {
 	while (true) {
 		std::cout << q;
 		std::string set;
@@ -142,29 +146,35 @@ namespace arrays {
 	}
 
 	void generate_pascals_triangle() {
-		// TO-CONTINUE (i can't, so hard)
 		std::cout << "N: ";
-		uint64_t n;
+		int n;
 		std::cin >> n;
 
-		int* crow = new int[n] { 0 };
 		int* prow = new int[n] { 0 };
+		int* crow = new int[n] { 0 };
 
-		int cridx = 0;
+		auto max = [](int n) {
+			for (int r = 1, v = 1; r <= n / 2; r++) {
+				if (r == n / 2)
+					return (int)floor(log10(v) + 1);
+				v = v * (n - r) / r;
+			}
+		} (n);
 
 		for (int i = 1; i <= n; i++) {
-			std::cout << std::string(n - i, ' ');
+			std::cout << std::string(max * (n - i) + (max - i + n), ' ');
 			for (int j = 0; j < i; j++) {
-				auto v = (!j ? 1 : (prow[j] + prow[j + 1]));
-				std::cout << v << ' ';
-				crow[cridx++] = v;
+				auto v = (!j || j == i - 1 ? 1 : (prow[j - 1] + prow[j]));
+				std::cout << std::string(max - floor(log10(v) + 1), '0') + std::to_string(v) << std::string(max + 2, ' ');
+				crow[j] = v;
 			}
-			std::cout << std::endl;
-			cridx = 0;
 			for (int j = 0; j < i; j++) {
 				prow[j] = crow[j];
 			}
+			std::cout << std::endl;
 		}
+		delete[] prow;
+		delete[] crow;
 	}
 
 	template <typename type> requires supports_comparison<type>
@@ -200,11 +210,13 @@ namespace arrays {
 			max = (v.at(i) > max ? v[i] : max);
 		}
 		// omg this is way harder than i expected!
+		return NULL;
 	}
 }
 
 
 int main(int argc, char* argv[]) {
-	auto v = take_vector_input<int>("V: ");
-	print_vectorial_matrix(arrays::find_next_lexicographic_permutation(v));
+	arrays::generate_pascals_triangle();
+	/*auto v = take_vector_input<int>("V: ");
+	print_vectorial_matrix(arrays::find_next_lexicographic_permutation(v));*/
 }
