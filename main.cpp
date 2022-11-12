@@ -165,7 +165,7 @@ namespace arrays {
 			std::cout << std::string(max * (n - i) + (max - i + n), ' ');
 			for (int j = 0; j < i; j++) {
 				auto v = (!j || j == i - 1 ? 1 : (pr[j - 1] + pr[j]));
-				std::cout << std::string(max - floor(log10(v) + 1), '0') + std::to_string(v) << std::string(max + 2, ' ');
+				std::cout << std::string(max - (unsigned __int64)floor(log10(v) + 1), '0') + std::to_string(v) << std::string(max + 2, ' ');
 				cr[j] = v;
 			}
 			for (int j = 0; j < i; j++) {
