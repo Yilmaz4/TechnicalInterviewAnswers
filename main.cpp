@@ -1,6 +1,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <cmath>
+#include <numbers>
 
 template <typename type> concept supports_comparison = requires(type x, type y) {
 	{ x < y } noexcept -> std::same_as<bool>;
@@ -11,7 +13,7 @@ template <typename type> concept supported_by_ostream = requires(type x) {
 };
 
 template <typename type> requires std::integral<type> || supported_by_ostream<type>
-void print_array(type* arr, uint64_t n, bool endl = false) {
+void print_array(type * arr, uint64_t n, bool endl = false) {
 	for (int i = 0; i < n; i++) {
 		std::cout << (!i ? "[" : "") << *(arr + i) << (i != n - 1 ? ", " : "]");
 	}
@@ -19,7 +21,7 @@ void print_array(type* arr, uint64_t n, bool endl = false) {
 }
 
 template <typename type> requires std::integral<type> || supported_by_ostream<type>
-void print_array_matrix(type* matrix, const int h, const int w, bool endl = false) {
+void print_array_matrix(type * matrix, const int h, const int w, bool endl = false) {
 	for (int x = 0; x < w; x++) {
 		std::cout << (!x ? "[[" : " [");
 		for (int y = 0; y < h; y++) {
@@ -42,8 +44,9 @@ void print_vector(std::vector<type> v, bool endl = false) noexcept {
 
 template <typename type> requires std::integral<type> || supported_by_ostream<type>
 void print_vectorial_matrix(std::vector<std::vector<type>> matrix, bool endl = false) {
-	std::cout << '{';
+	std::cout << '{' << std::endl;
 	for (auto const& v : matrix) {
+		std::cout << "    ";
 		print_vector<type>(v);
 		std::cout << ',' << std::endl;
 	}
@@ -73,16 +76,15 @@ std::vector<type> take_vector_input(std::string q = '>') noexcept {
 
 		std::vector<int> out;
 		int j = 0, n = 0;
-		bool nF = false;
 		for (const char& c : set) {
 			switch (c) {
 			case '-':
-				nF = true;
+				n *= -1;
 				continue;
 			case '{':
 			case ',':
 				out.push_back(n);
-				j = n = nF = 0;
+				j = n = 0;
 				if (c == '{') {
 					for (int i = 0; i < out.size() / 2; i++) {
 						auto t = out[i];
@@ -106,12 +108,16 @@ std::vector<type> take_vector_input(std::string q = '>') noexcept {
 }
 
 uint64_t factorial(const uint64_t num) {
-	if (!num)
+	if (num == 0)
 		return num + 1;
-	uint64_t out = num;
-	for (uint64_t n = num - 1; n > 0; n--)
-		out *= n;
-	return out;
+	if (num <= 4)
+		return static_cast<uint64_t>(sqrt(2 * atan2(0, -1) * num) * pow(num / exp(1.0), num) + 0.5);
+	else {
+		uint64_t out = num;
+		for (uint64_t n = num - 1; n > 0; n--)
+			out *= n;
+		return out;
+	}
 }
 
 namespace arrays {
@@ -179,44 +185,68 @@ namespace arrays {
 
 	template <typename type> requires supports_comparison<type>
 	std::vector<std::vector<type>> find_next_lexicographic_permutation(std::vector<type>& in) {
-		// TO-CONTINUE (i've got the algorithm right)
-		std::vector<std::vector<type>> perms(factorial(in.size()), std::vector<type>(in.size()));
-		for (int i = 0; i < in.size(); i++) {
+		std::vector<std::vector<type>> permutations(factorial(in.size()), std::vector<type>(in.size()));
+		/*for (int i = 0; i < in.size(); i++) {
 			uint64_t n = factorial((uint64_t)(in.size() - i - 1));
 			for (int j = 0; j < in.size(); j++) {
 				std::vector<type> elms = in;
 				for (uint64_t idx = 0; idx < (!i ? 0 : elms.size()); idx++) {
 					for (int k = 0; k < i; k++) {
-						if (elms[idx] == perms[j][k]) {
+						if (elms[idx] == permutations[j][k]) {
 							elms.erase(elms.begin() + idx);
 						}
 					}
 				}
 				uint64_t idx = 0;
 				for (int k = 0; k < n; k++) {
-					perms[(j + 1) * k][i] = elms[idx];
-					if (k % (uint64_t)(n / (in.size() - i - 1)) == 0) {
+					permutations[(j + 1) * k][i] = elms[idx];
+					if (false) {
 						idx++;
 					}
 				}
 			}
+		}*/
+		for (int i = 0; i < in.size(); i++) {
+			for (int j = 0; j < factorial(static_cast<uint64_t>(in.size())); j++) {
+
+			}
 		}
-		return perms;
+		return permutations;
 	}
 
 	int64_t find_max_subarray_sum(std::vector<int>& v) {
-		int max = INT_MIN;
+		int64_t sum = INT_MIN;
 		for (int i = 0; i < v.size(); i++) {
-			max = (v.at(i) > max ? v[i] : max);
+			for (int j = i; j < v.size(); j++) {
+				int64_t tmp = sum;
+				sum = 0;
+				for (int k = i; k <= j; k++) {
+					sum += v[k];
+				}
+				if (tmp > sum) {
+					sum = tmp;
+				}
+			}
 		}
-		// omg this is way harder than i expected!
-		return NULL;
+		return sum;
 	}
 }
 
+#include <algorithm>
 
 int main(int argc, char* argv[]) {
-	arrays::generate_pascals_triangle();
-	/*auto v = take_vector_input<int>("V: ");
+	while (true) {
+		std::cout << std::endl;
+		auto v = take_vector_input<int>("V: ");
+		std::cout << arrays::find_max_subarray_sum(v);
+	}
+
+	/*std::cout << "Expected lexicographic permutations:" << std::endl;
+	for (uint64_t i = 0; i < factorial(v.size()); i++) {
+		print_vector(v, true);
+		std::next_permutation(v.begin(), v.end());
+
+	}
+	std::cout << std::endl;
 	print_vectorial_matrix(arrays::find_next_lexicographic_permutation(v));*/
 }
