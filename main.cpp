@@ -55,7 +55,7 @@ void print_vectorial_matrix(std::vector<std::vector<type>> matrix, bool endl = f
 }
 
 template <typename type> requires std::constructible_from<std::string> || supported_by_ostream<type>
-std::vector<type> take_vector_input(std::string q = '>') noexcept {
+std::vector<type> take_vector_input(std::string q = ">") noexcept {
 	while (true) {
 		std::cout << q;
 		std::string set;
@@ -230,23 +230,40 @@ namespace arrays {
 		}
 		return sum;
 	}
+
+	void sort_array_of_0s_1s_and_2s(std::vector<int>& v) {
+		uint64_t lo = 0;
+		uint64_t hi = v.size() - 1;
+		uint64_t mid = 0;
+
+		while (mid <= hi) {
+			switch (v[mid]) {
+			case 0:
+				std::swap(v[lo++], v[mid++]);
+				break;
+			case 1:
+				mid++;
+				break;
+			case 2:
+				std::swap(v[mid], v[hi--]);
+				break;
+			}
+		}
+	}
+
+
 }
 
 #include <algorithm>
 
 int main(int argc, char* argv[]) {
-	while (true) {
-		std::cout << std::endl;
-		auto v = take_vector_input<int>("V: ");
-		std::cout << arrays::find_max_subarray_sum(v);
-	}
-
-	/*std::cout << "Expected lexicographic permutations:" << std::endl;
+	std::vector<int> v = take_vector_input<int>();
+	std::cout << "Expected lexicographic permutations:" << std::endl;
 	for (uint64_t i = 0; i < factorial(v.size()); i++) {
 		print_vector(v, true);
 		std::next_permutation(v.begin(), v.end());
 
 	}
 	std::cout << std::endl;
-	print_vectorial_matrix(arrays::find_next_lexicographic_permutation(v));*/
+	print_vectorial_matrix(arrays::find_next_lexicographic_permutation(v));
 }
