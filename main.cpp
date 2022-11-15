@@ -185,7 +185,7 @@ namespace arrays {
 		std::vector<int> v = in;
 		for (uint64_t i = 0; i < v.size(); i++) {
 			int max = INT_MAX;
-			int idx = -1;
+			uint64_t idx = -1;
 			for (uint64_t j = i; j < v.size(); j++) {
 				if (v[j] < max) {
 					max = v[j];
@@ -271,11 +271,27 @@ namespace arrays {
 		}
 	}
 
-
+	uint64_t max_profit(std::vector<int> prices) {
+		int min = INT_MAX;
+		uint64_t idx = 0;
+		for (uint64_t i = 0; i < prices.size(); i++) {
+			if (prices[i] < min) {
+				idx = i;
+				min = prices[i];
+			}
+		}
+		int max = INT_MIN;
+		for (uint64_t i = idx; i < prices.size(); i++) {
+			if (prices[i] > max) {
+				max = prices[i];
+			}
+		}
+		return max - min;
+	}
 }
 
 #include <algorithm>
 
 int main(int argc, char* argv[]) {
-	
+	std::cout << arrays::max_profit({ 7,6,4,3,1 });
 }
