@@ -288,10 +288,20 @@ namespace arrays {
 		}
 		return max - min;
 	}
+
+	std::vector<std::vector<int>> rotate_matrix_90_clockwise(std::vector<std::vector<int>> matrix) {
+		std::vector<std::vector<int>> out = matrix;
+		for (uint64_t i = 0; i < matrix[0].size(); i++) {
+			for (int64_t j = matrix.size() - 1; j >= 0; j--) {
+				out[i][matrix.size() - 1 - j] = matrix[j][i];
+			}
+		}
+		return out;
+	}
 }
 
-#include <algorithm>
-
 int main(int argc, char* argv[]) {
-	std::cout << arrays::max_profit({ 7,6,4,3,1 });
+	print_vectorial_matrix(arrays::rotate_matrix_90_clockwise(
+		{ {5,1,9,11},{2,4,8,10},{13,3,6,7},{15,14,12,16} }
+	));
 }
