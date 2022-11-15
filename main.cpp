@@ -8,9 +8,7 @@ template <typename type> concept supports_comparison = requires(type x, type y) 
 	{ x < y } noexcept -> std::same_as<bool>;
 	{ x > y } noexcept -> std::same_as<bool>;
 };
-template <typename type> concept supported_by_ostream = requires(type x) {
-	{ std::cout << x } noexcept -> std::convertible_to<std::ostream>;
-};
+template <typename type> concept supported_by_ostream = true;
 
 template <typename type> requires std::integral<type> || supported_by_ostream<type>
 void print_array(type * arr, uint64_t n, bool endl = false) {
@@ -107,14 +105,14 @@ std::vector<type> take_vector_input(std::string q = ">") noexcept {
 	}
 }
 
-uint64_t factorial(const uint64_t num) {
+uint64_t factorial(const uint64_t num, const uint64_t limit = 0) noexcept {
 	if (num == 0)
 		return num + 1;
-	if (num <= 4)
+	if (num <= 4 && !limit)
 		return static_cast<uint64_t>(sqrt(2 * atan2(0, -1) * num) * pow(num / exp(1.0), num) + 0.5);
 	else {
 		uint64_t out = num;
-		for (uint64_t n = num - 1; n > 0; n--)
+		for (uint64_t n = num - 1; n > limit; n--)
 			out *= n;
 		return out;
 	}
@@ -183,35 +181,57 @@ namespace arrays {
 		delete[] cr;
 	}
 
-	template <typename type> requires supports_comparison<type>
-	std::vector<std::vector<type>> find_next_lexicographic_permutation(std::vector<type>& in) {
-		std::vector<std::vector<type>> permutations(factorial(in.size()), std::vector<type>(in.size()));
-		/*for (int i = 0; i < in.size(); i++) {
-			uint64_t n = factorial((uint64_t)(in.size() - i - 1));
-			for (int j = 0; j < in.size(); j++) {
-				std::vector<type> elms = in;
-				for (uint64_t idx = 0; idx < (!i ? 0 : elms.size()); idx++) {
-					for (int k = 0; k < i; k++) {
-						if (elms[idx] == permutations[j][k]) {
-							elms.erase(elms.begin() + idx);
+	std::vector<int> find_next_lexicographic_permutation(std::vector<int>& in) {
+		std::vector<int> v = in;
+		for (uint64_t i = 0; i < v.size(); i++) {
+			int max = INT_MAX;
+			int idx = -1;
+			for (uint64_t j = i; j < v.size(); j++) {
+				if (v[j] < max) {
+					max = v[j];
+					idx = j;
+				}
+			}
+			int tmp = v[i];
+			v[i] = v[idx];
+			v[idx] = tmp;
+		}
+		uint64_t n = factorial(static_cast<uint64_t>(v.size()));
+		std::vector<std::vector<int>> permutations(n, std::vector<int>(v.size()));
+		for (uint64_t i = 0; i < v.size(); i++) {
+			unsigned __int64 n1 = factorial(static_cast<uint64_t>(v.size()), static_cast<uint64_t>(v.size()) - i - 1);
+			unsigned __int64 n2 = n / n1;
+			uint64_t idx = 0;
+			uint64_t y = 0;
+			std::vector<int> prvs(v.size());
+			for (uint64_t j = 0; j < n1; j++) {
+				std::vector<int> cv = v;
+				for (uint64_t k = 0; k < i; k++) {
+					for (uint64_t l = 0; l < cv.size(); l++) {
+						if (cv[l] == permutations[y][k]) {
+							cv.erase(cv.begin() + l);
 						}
 					}
 				}
-				uint64_t idx = 0;
-				for (int k = 0; k < n; k++) {
-					permutations[(j + 1) * k][i] = elms[idx];
-					if (false) {
-						idx++;
+				for (uint64_t k = 0; k < i; k++) {
+					if (prvs[k] != permutations[y][k]) {
+						for (uint64_t l = 0; l < i; l++) {
+							prvs[l] = permutations[y][l];
+						}
+						idx = 0;
 					}
 				}
-			}
-		}*/
-		for (int i = 0; i < in.size(); i++) {
-			for (int j = 0; j < factorial(static_cast<uint64_t>(in.size())); j++) {
-
+				int obj = cv[idx++];
+				for (uint64_t k = 0; k < n2; k++) {
+					permutations[y++][i] = obj;
+				}
 			}
 		}
-		return permutations;
+		for (uint64_t i = 0; i < permutations.size(); i++) {
+			if (permutations[i] == in) {
+				return permutations[i + 1];
+			}
+		}
 	}
 
 	int64_t find_max_subarray_sum(std::vector<int>& v) {
@@ -257,13 +277,12 @@ namespace arrays {
 #include <algorithm>
 
 int main(int argc, char* argv[]) {
-	std::vector<int> v = take_vector_input<int>();
-	std::cout << "Expected lexicographic permutations:" << std::endl;
-	for (uint64_t i = 0; i < factorial(v.size()); i++) {
-		print_vector(v, true);
+	while (1) {
+		std::vector<int> v = take_vector_input<int>();
+		std::cout << "find_next_lexicographic_permutation: ";
+		print_vector(arrays::find_next_lexicographic_permutation(v), true);
+		std::cout << "std::next_permutation:               ";
 		std::next_permutation(v.begin(), v.end());
-
+		print_vector(v, true);
 	}
-	std::cout << std::endl;
-	print_vectorial_matrix(arrays::find_next_lexicographic_permutation(v));
 }
