@@ -277,12 +277,5 @@ namespace arrays {
 #include <algorithm>
 
 int main(int argc, char* argv[]) {
-	while (1) {
-		std::vector<int> v = take_vector_input<int>();
-		std::cout << "find_next_lexicographic_permutation: ";
-		print_vector(arrays::find_next_lexicographic_permutation(v), true);
-		std::cout << "std::next_permutation:               ";
-		std::next_permutation(v.begin(), v.end());
-		print_vector(v, true);
-	}
+	
 }
