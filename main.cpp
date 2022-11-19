@@ -175,11 +175,7 @@ namespace arrays {
 		print_array_matrix<int>(&matrix[0][0], h, w);
 	}
 
-	void generate_pascals_triangle() {
-		std::cout << "N: ";
-		int n;
-		std::cin >> n;
-
+	void print_pascals_triangle(int n) {
 		int* pr = new int[n] { 0 };
 		int* cr = new int[n] { 0 };
 
@@ -207,7 +203,7 @@ namespace arrays {
 		delete[] cr;
 	}
 
-	std::vector<int> find_next_lexicographic_permutation(std::vector<int>& in) {
+	void next_lexicographic_permutation(std::vector<int>& in) {
 		std::vector<int> v = in;
 		for (uint64_t i = 0; i < v.size(); i++) {
 			int max = INT_MAX;
@@ -255,7 +251,8 @@ namespace arrays {
 		}
 		for (uint64_t i = 0; i < permutations.size(); i++) {
 			if (permutations[i] == in) {
-				return permutations[i + 1];
+				in = permutations[i + 1];
+				return;
 			}
 		}
 	}
