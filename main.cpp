@@ -52,12 +52,19 @@ void print_vectorial_matrix(std::vector<std::vector<type>> matrix, bool endl = f
 	if (endl) std::cout << std::endl;
 }
 
-template <typename type> requires std::constructible_from<std::string> || supported_by_ostream<type>
-std::vector<type> take_vector_input(std::string q = ">") noexcept {
+
+std::vector<int> take_vector_input(std::string q = ">", bool* endm = nullptr) noexcept {
 	while (true) {
 		std::cout << q;
 		std::string set;
 		std::getline(std::cin, set);
+		bool tendm = false;
+
+		if (set[set.size() - 1] != ',' && endm) {
+			tendm = true;
+		} else if (endm) {
+			set.resize(set.size() - 1);
+		}
 
 		if (set.at(0) != '{' || set.at(set.length() - 1) != '}') {
 		syntax_error:
@@ -65,7 +72,7 @@ std::vector<type> take_vector_input(std::string q = ">") noexcept {
 			continue;
 		}
 
-		// reverse the vector
+		// reverse the input string
 		for (int i = 0; i < set.size() / 2; i++) {
 			char t = set[i];
 			set[i] = set[set.size() - i - 1];
@@ -79,6 +86,7 @@ std::vector<type> take_vector_input(std::string q = ">") noexcept {
 			case '-':
 				n *= -1;
 				continue;
+			case '[':
 			case '{':
 			case ',':
 				out.push_back(n);
@@ -89,9 +97,13 @@ std::vector<type> take_vector_input(std::string q = ">") noexcept {
 						out[i] = out[out.size() - i - 1];
 						out[out.size() - i - 1] = t;
 					}
+					if (endm) {
+						*endm = tendm;
+					}
 					return out;
 				}
 				__fallthrough;
+			case ']':
 			case '}':
 			case ' ':
 				break;
@@ -103,6 +115,20 @@ std::vector<type> take_vector_input(std::string q = ">") noexcept {
 			}
 		}
 	}
+}
+
+std::vector<std::vector<int>> take_matrix_input(uint64_t n = -1, std::string q = "") noexcept {
+	std::cout << q << '{' << std::endl;
+	std::vector<std::vector<int>> out;
+	for (uint64_t i = 0; i < n; i++) {
+		bool endm = false;
+		out.push_back(take_vector_input(std::string(4, '\40'), &endm));
+		if (endm && n == static_cast<uint64_t>(-1)) {
+			break;
+		}
+	}
+	std::cout << '}' << std::endl;
+	return out;
 }
 
 uint64_t factorial(const uint64_t num, const uint64_t limit = 0) noexcept {
@@ -169,7 +195,7 @@ namespace arrays {
 			std::cout << std::string(max * (n - i) + (max - i + n), ' ');
 			for (int j = 0; j < i; j++) {
 				auto v = (!j || j == i - 1 ? 1 : (pr[j - 1] + pr[j]));
-				std::cout << std::string(max - (unsigned __int64)floor(log10(v) + 1), '0') + std::to_string(v) << std::string(max + 2, ' ');
+				std::cout << std::string(max - (unsigned __int64)floor(log10(v) + 1), ' ') + std::to_string(v) << std::string(max + 2, ' ');
 				cr[j] = v;
 			}
 			for (int j = 0; j < i; j++) {
@@ -271,7 +297,7 @@ namespace arrays {
 		}
 	}
 
-	uint64_t max_profit(std::vector<int> prices) {
+	uint64_t max_profit(std::vector<int>& prices) {
 		int min = INT_MAX;
 		uint64_t idx = 0;
 		for (uint64_t i = 0; i < prices.size(); i++) {
@@ -289,19 +315,36 @@ namespace arrays {
 		return max - min;
 	}
 
-	std::vector<std::vector<int>> rotate_matrix_90_clockwise(std::vector<std::vector<int>> matrix) {
-		std::vector<std::vector<int>> out = matrix;
+	void rotate_matrix_90_clockwise(std::vector<std::vector<int>>& matrix) {
 		for (uint64_t i = 0; i < matrix[0].size(); i++) {
 			for (int64_t j = matrix.size() - 1; j >= 0; j--) {
-				out[i][matrix.size() - 1 - j] = matrix[j][i];
+				matrix[i][matrix.size() - 1 - j] = matrix[j][i];
 			}
 		}
-		return out;
+	}
+
+	void merge_overlapping_subintervals(std::vector<std::vector<int>>& intervals) {
+		std::vector<uint64_t> to_del;
+		for (uint64_t i = 0; i < intervals.size(); i++) {
+			for (uint64_t j = 0; j < intervals.size(); j++) {
+				if (j == i)
+					continue;
+				if (intervals[i][1] >= intervals[j][0] && intervals[i][0] < intervals[j][0]) {
+					int tmp = intervals[j][1];
+					intervals[i][1] = tmp;
+					to_del.push_back(j);
+					break;
+				}
+			}
+		}
+		for (uint64_t i = 0; i < to_del.size(); i++) {
+			intervals.erase(intervals.begin() + to_del[i]);
+		}
 	}
 }
 
 int main(int argc, char* argv[]) {
-	print_vectorial_matrix(arrays::rotate_matrix_90_clockwise(
-		{ {5,1,9,11},{2,4,8,10},{13,3,6,7},{15,14,12,16} }
-	));
+	std::vector<std::vector<int>> matrix = take_matrix_input();
+	arrays::merge_overlapping_subintervals(matrix);
+	print_vectorial_matrix(matrix, true);
 }
