@@ -338,10 +338,40 @@ namespace arrays {
 			intervals.erase(intervals.begin() + to_del[i]);
 		}
 	}
+
+	void merge_two_sorted_arrays_without_extra_space(std::vector<int>& arr1, std::vector<int>& arr2) {
+		uint64_t n = arr1.size();
+		uint64_t m = arr2.size();
+		arr1.resize(n + m);
+		for (uint64_t i = 0; i < m; i++) {
+			arr1[n + i] = arr2[i];
+		}
+		for (uint64_t i = 0; i < arr1.size(); i++) {
+			int max = INT_MAX;
+			uint64_t idx = -1;
+			for (uint64_t j = i; j < arr1.size(); j++) {
+				if (arr1[j] < max) {
+					max = arr1[j];
+					idx = j;
+				}
+			}
+			int tmp = arr1[i];
+			arr1[i] = arr1[idx];
+			arr1[idx] = tmp;
+		}
+		for (uint64_t i = 0; i < m; i++) {
+			arr2[i] = arr1[n + i];
+		}
+		arr1.resize(n);
+	}
 }
 
 int main(int argc, char* argv[]) {
-	std::vector<std::vector<int>> matrix = take_matrix_input();
-	arrays::merge_overlapping_subintervals(matrix);
-	print_vectorial_matrix(matrix, true);
+	std::vector<int> arr1 = take_vector_input("arr1: ");
+	std::vector<int> arr2 = take_vector_input("arr2: ");
+	arrays::merge_two_sorted_arrays_without_extra_space(arr1, arr2);
+	std::cout << "arr1: ";
+	print_vector(arr1, true);
+	std::cout << "arr2: ";
+	print_vector(arr2, true);
 }
