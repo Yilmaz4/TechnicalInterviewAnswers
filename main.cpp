@@ -19,7 +19,7 @@ void print_array(type * arr, uint64_t n, bool endl = false) {
 }
 
 template <typename type> requires std::integral<type> || supported_by_ostream<type>
-void print_array_matrix(type * matrix, const int h, const int w, bool endl = false) {
+void print_array_matrix(type* matrix, const int h, const int w, bool endl = false) {
 	for (int x = 0; x < w; x++) {
 		std::cout << (!x ? "[[" : " [");
 		for (int y = 0; y < h; y++) {
@@ -145,34 +145,28 @@ uint64_t factorial(const uint64_t num, const uint64_t limit = 0) noexcept {
 }
 
 namespace arrays {
-	void set_matrix_zeroes() {
-		static constexpr int h = 3;
-		static constexpr int w = 3;
+	void set_matrix_zeroes(std::vector<std::vector<int>> matrix) {
+		uint64_t h = matrix.size();
+		uint64_t w = matrix[0].size();
 
-		int matrix[w][h] = {
-			{1, 1, 1},
-			{1, 0, 1},
-			{1, 1, 1}
-		};
-
-		for (int x = 0; x < w; x++) {
-			for (int y = 0; y < h; y++) {
+		for (uint64_t x = 0; x < w; x++) {
+			for (uint64_t y = 0; y < h; y++) {
 				matrix[x][y] = (!matrix[x][y] ? -1 : matrix[x][y]);
 			}
 		}
-		for (int x = 0; x < w; x++) {
-			for (int y = 0; y < h; y++) {
+		for (uint64_t x = 0; x < w; x++) {
+			for (uint64_t y = 0; y < h; y++) {
 				if (matrix[x][y] == -1) {
-					for (int i = 0; i < h; i++) {
+					for (uint64_t i = 0; i < h; i++) {
 						matrix[x][i] = 0;
 					}
-					for (int i = 0; i < w; i++) {
+					for (uint64_t i = 0; i < w; i++) {
 						matrix[i][y] = 0;
 					}
 				}
 			}
 		}
-		print_array_matrix<int>(&matrix[0][0], h, w);
+		print_vectorial_matrix(matrix);
 	}
 
 	void print_pascals_triangle(int n) {
@@ -363,6 +357,23 @@ namespace arrays {
 			arr2[i] = arr1[n + i];
 		}
 		arr1.resize(n);
+	}
+
+	int find_duplicate(std::vector<int> v) {
+		for (uint64_t i = 0; i < v.size(); i++) {
+			int max = INT_MAX;
+			uint64_t idx = -1;
+			for (uint64_t j = i; j < v.size(); j++) {
+				if (v[j] < max) {
+					max = v[j];
+					idx = j;
+				}
+			}
+			int tmp = v[i];
+			v[i] = v[idx];
+			v[idx] = tmp;
+		}
+
 	}
 }
 
