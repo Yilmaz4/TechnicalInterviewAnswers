@@ -251,7 +251,7 @@ namespace arrays {
 		}
 	}
 
-	int64_t find_max_subarray_sum(std::vector<int>& v) {
+	signed __int64 find_max_subarray_sum(std::vector<int>& v) {
 		int64_t sum = INT_MIN;
 		for (int i = 0; i < v.size(); i++) {
 			for (int j = i; j < v.size(); j++) {
@@ -288,7 +288,7 @@ namespace arrays {
 		}
 	}
 
-	uint64_t max_profit(std::vector<int>& prices) {
+	unsigned __int64 max_profit(std::vector<int>& prices) {
 		int min = INT_MAX;
 		uint64_t idx = 0;
 		for (uint64_t i = 0; i < prices.size(); i++) {
@@ -373,16 +373,70 @@ namespace arrays {
 			v[i] = v[idx];
 			v[idx] = tmp;
 		}
+		for (uint64_t i = 0; i < v.size(); i++) {
+			if (v[i] == v[i + 1]) {
+				return v[i];
+			}
+		}
+		throw std::exception();
+	}
 
+	std::pair<int, int> find_the_repeating_and_missing_integers(std::vector<int> const& v) {
+		std::pair<int, int> out;
+		for (int n = 1; n <= v.size(); n++) {
+			uint64_t c = 0;
+			for (uint64_t i = 0; i < v.size(); i++) {
+				if (v[i] == n) {
+					c++;
+				}
+			}
+			if (c == 1) continue;
+			(!c ? out.second : out.first) = n;
+		}
+		return out;
+	}
+
+	unsigned __int64 inversion_count_in_array(std::vector<int> const& v) {
+		uint64_t c = 0;
+		for (uint64_t i = 0; i < v.size(); i++) {
+			for (uint64_t j = i; j < v.size(); j++) {
+				if (v[j] < v[i]) c++;
+			}
+		}
+		return c;
+	}
+
+	bool find_in_matrix(int val, std::vector<std::vector<int>> const& matrix) {
+		uint64_t lo = 0, hi = pow(matrix.size(), 2);
+		while (hi > lo && lo + 1 != hi) {
+			uint64_t mid = floor((hi + lo) / 2);
+			int v = matrix[mid / matrix.size()][mid % matrix.size()];
+			if (v == val)
+				return true;
+			((v > val) ? hi : lo) = mid;
+		}
+		return false;
+	}
+
+	double pow(double n, int p) {
+		double tn = n;
+		for (int i = 0; i < p; i++) {
+			n *= tn;
+		}
+		return n;
+	}
+
+	int find_majority_element(std::vector<int> const& v) {
+		int can = 0;
+		for (int i = 0, c = 0; i < v.size(); i++) {
+			if (!c) can = v[i];
+			(v[i] == can) ? c++ : c--;
+		}
+		return can;
 	}
 }
 
 int main(int argc, char* argv[]) {
-	std::vector<int> arr1 = take_vector_input("arr1: ");
-	std::vector<int> arr2 = take_vector_input("arr2: ");
-	arrays::merge_two_sorted_arrays_without_extra_space(arr1, arr2);
-	std::cout << "arr1: ";
-	print_vector(arr1, true);
-	std::cout << "arr2: ";
-	print_vector(arr2, true);
+	std::vector<int> v = take_vector_input();
+	std::cout << arrays::find_majority_element(v);
 }
