@@ -3,6 +3,7 @@
 #include <vector>
 #include <cmath>
 #include <numbers>
+#include <set>
 
 template <typename type> concept supports_comparison = requires(type x, type y) {
 	{ x < y } noexcept -> std::same_as<bool>;
@@ -426,17 +427,48 @@ namespace arrays {
 		return n;
 	}
 
-	int find_majority_element(std::vector<int> const& v) {
-		int can = 0;
-		for (int i = 0, c = 0; i < v.size(); i++) {
-			if (!c) can = v[i];
-			(v[i] == can) ? c++ : c--;
+	int find_majority(std::vector<int> v) {
+		std::set e(v.begin(), v.end());
+		std::vector<uint64_t> freq(e.size(), 0);
+		for (unsigned __int64 i = 0; i < e.size(); i++) {
+			std::vector<uint64_t> to_rem;
+			for (unsigned __int64 j = 0; j < v.size(); j++) {
+				if (v[j] == *std::next(e.begin(), i)) {
+					freq[i]++;
+					to_rem.push_back(j);
+				}
+			}
+			for (unsigned __int64 j = 0; j < to_rem.size() - 1; j++) {
+				for (uint64_t k = 0; k < to_rem.size() - j - 1; k++) {
+					if (to_rem[k] > to_rem[k + 1]) {
+						uint64_t tmp = to_rem[k];
+						to_rem[k] = to_rem[k + 1];
+						to_rem[k + 1] = tmp;
+					}
+				}
+			}
+			for (unsigned __int64 j = 0; j < to_rem.size(); j++) {
+				v.erase(v.begin() + (to_rem[j] - j));
+			}
 		}
-		return can;
+		std::pair<uint64_t, uint64_t> p;
+		for (unsigned __int64 i = 0; i < freq.size(); i++) {
+			if (freq[i] > p.first) {
+				p.first = freq[i];
+				p.second = i;
+			}
+		}
+		return *std::next(e.begin(), p.second);
 	}
+
+	/*int number_of_unique_paths_in_matrix(int h, int w) {
+
+	}*/
 }
 
 int main(int argc, char* argv[]) {
-	std::vector<int> v = take_vector_input();
-	std::cout << arrays::find_majority_element(v);
+	while (true) {
+		std::vector<int> v = take_vector_input();
+		std::cout << arrays::find_majority(v) << std::endl;
+	}
 }
