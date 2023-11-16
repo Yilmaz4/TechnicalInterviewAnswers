@@ -467,14 +467,17 @@ namespace arrays {
 	}
 
 	std::pair<int, int> pair_with_given_sum_exists(std::vector<int> v, int n) {
+		/* O(n^2) approach
 		for (int i = 0; i < v.size(); i++) {
-			for (int j = 0; j < v.size(); j++) {
-				if (j != i && v[i] + v[j] == n) {
+			for (int j = i + 1; j < v.size(); j++) {
+				if (v[i] + v[j] == n) {
 					return std::pair<int, int>(i, j);
 				}
 			}
 		}
 		return std::pair<int, int>(-1, -1);
+		*/
+
 	}
 }
 
