@@ -180,6 +180,7 @@ namespace arrays {
 					return (int)floor(log10(v) + 1);
 				v = v * (n - r) / r;
 			}
+			return 0;
 		} (n);
 
 		for (int i = 1; i <= n; i++) {
@@ -408,9 +409,9 @@ namespace arrays {
 	}
 
 	bool find_in_matrix(int val, std::vector<std::vector<int>> const& matrix) {
-		uint64_t lo = 0, hi = pow(matrix.size(), 2);
+		uint64_t lo = 0, hi = (uint64_t)pow(matrix.size(), 2);
 		while (hi > lo && lo + 1 != hi) {
-			uint64_t mid = floor((hi + lo) / 2);
+			uint64_t mid = (unsigned __int64)floor((hi + lo) / 2);
 			int v = matrix[mid / matrix.size()][mid % matrix.size()];
 			if (v == val)
 				return true;
@@ -461,14 +462,28 @@ namespace arrays {
 		return *std::next(e.begin(), p.second);
 	}
 
-	/*int number_of_unique_paths_in_matrix(int h, int w) {
+	int unique_paths_in_grid(int h, int w) {
+		return 0;
+	}
 
-	}*/
+	std::pair<int, int> pair_with_given_sum_exists(std::vector<int> v, int n) {
+		for (int i = 0; i < v.size(); i++) {
+			for (int j = 0; j < v.size(); j++) {
+				if (j != i && v[i] + v[j] == n) {
+					return std::pair<int, int>(i, j);
+				}
+			}
+		}
+		return std::pair<int, int>(-1, -1);
+	}
 }
 
+#include <conio.h>
+
 int main(int argc, char* argv[]) {
-	while (true) {
-		std::vector<int> v = take_vector_input();
-		std::cout << arrays::find_majority(v) << std::endl;
-	}
+	std::vector<int> v = take_vector_input();
+	int n;
+	std::cin >> n;
+	std::pair<int, int> p = arrays::pair_with_given_sum_exists(v, n);
+	std::cout << p.first << " " << p.second << std::endl;
 }
